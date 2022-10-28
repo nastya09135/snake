@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tochka</title><script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script> 
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var width = canvas.width;
+    var height = canvas.height;
+
+    var circle = function (x, y, radius, fillCircle) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+      if (fillCircle) {
+        ctx.fill();
+        } else {
+        ctx.stroke();
+      }
+    };
+
+    // Конструктор Ball
+    var Ball = function () {
+   
+      this.x = width / 2;
+      this.y = height / 2;
+      this.speed = 5;
+      this.size = 10;
+      this.xSpeed = 1;
+      this.ySpeed = 0;
+      
+    };
+
+    // Обновляем позицию мяча соответственно его скорости
+    Ball.prototype.move = function () {
+      this.x += this.xSpeed * this.speed;
+      this.y += this.ySpeed * this.speed;
+
+      if (this.x < 0 || this.x > width) {
+        this.xSpeed = -this.xSpeed;
+      } else if (this.y < 0 || this.y > height) {
+        this.ySpeed = -this.ySpeed;
+      }
+    };
+
+    // Рисуем мяч
+    Ball.prototype.draw = function () {
+      circle(this.x, this.y, this.size, true);
+    };
+
+    // Задаем направление движения по строке с названием действия
+    Ball.prototype.doAction = function (action) {
+      if (action === "up") {
+        this.xSpeed = 0;
+        this.ySpeed = -1;
+      } else if (action === "down") {
+        this.xSpeed = 0;
+        this.ySpeed = 1;
+      } else if (action === "left") {
+        this.xSpeed = -1;
+        this.ySpeed = 0;
+      } else if (action === "right") {
+        this.xSpeed = 1;
+        this.ySpeed = 0;
+      } else if (action === "stop") {
+        this.xSpeed = 0;
+        this.ySpeed = 0;
+      } else if (action === "faster") {
+        this.speed++;
+      } else if (action === "slower") {
+        if (this.speed > 0) {
+          this.speed--;
+        }
+      } else if (action === "less") {
+        if (this.size > 0) {
+          this.size--;
+        }
+      } else if (action === "more") {
+        this.size++;
+      }
+    };
+
+    // Создаем объект-мяч
+    var ball = new Ball();
+
+    // Объект для перевода кодов клавиш в названия действий
+    var keyActions = {
+      32: "stop",//стоп _
+      37: "left",//влево ← 
+      38: "up",//вверх ↑
+      39: "right",//вправо →
+      40: "down",//вниз ↓
+      88: "faster",//быстрее X
+      90: "slower",//медленнее Z
+      67: "less",//меньше C
+      86: "more"//больше V
+    };
+
+    // Обработчик события keydown, будет вызван при каждом нажатии клавиши
+    $("body").keydown(function (event) {
+      var action = keyActions[event.keyCode];
+      ball.doAction(action);
+    });
+
+    // Функция анимации, вызывается раз в 30 мс
+    setInterval(function () {
+      ctx.clearRect(0, 0, width, height);
+
+      ball.draw();
+      ball.move();
+
+      ctx.strokeRect(0, 0, width, height);
+    }, 30);
+    </script>
+   
+</body>
+</html>
